@@ -150,6 +150,7 @@ flows:
           text: "好的，订单{{ slots.order_number }}的退款申请已提交，原因是：{{ slots.refund_reason }}。后续会尽快为你处理。"
         next: end
 
+
       - id: end
         type: end
         next: []

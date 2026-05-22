@@ -187,7 +187,7 @@ class DialogueState:
     def current_active_task(self):
         """
         当前正在执行的任务（系统流程、业务任务）
-        先获取系统流程 如果获取不到 获取业务任务(TODO：引擎跑的时候)
+        先获取系统流程 如果获取不到 获取业务任务
         :return:
         """
 
