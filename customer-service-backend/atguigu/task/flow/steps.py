@@ -4,7 +4,7 @@
 from enum import Enum
 from dataclasses import dataclass, field
 from typing import Dict, Any, List
-from atuguigu.task.flow.links import FlowStepLink, FlowStepStaticLink, FlowStepFallbackLink, FlowStepConditionalLink
+from atguigu.task.flow.links import FlowStepLink, FlowStepStaticLink, FlowStepFallbackLink, FlowStepConditionalLink
 
 
 class FlowStepType(Enum):

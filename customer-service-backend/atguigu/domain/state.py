@@ -2,8 +2,8 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Dict, Any
-from atuguigu.domain.contexts import TaskContext, SystemContext
-from atuguigu.domain.messages import FocusedObject, UserMessage, BotMessage
+from atguigu.domain.contexts import TaskContext, SystemContext
+from atguigu.domain.messages import FocusedObject, UserMessage, BotMessage
 
 
 @dataclass(slots=True)
@@ -71,7 +71,7 @@ class DialogueState:
     focused_object: FocusedObject | None = None
     sessions: list[Session] = field(default_factory=list)  # 当前用户的所有回话都存储起来
     current_session_id: str | None = None  # 当前用户的session的sessionID
-    pending_turn: Turn | None = None  # turn会话的暂存区（变量：内存中缓冲区）
+    pending_turn: Turn | None = None  # turn会话的暂存区（变量：内存中缓冲区） 不会持久化
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -81,8 +81,7 @@ class DialogueState:
             "active_system_task": self.active_system_task.to_dict() if self.active_system_task else None,
             "focused_object": self.focused_object.to_dict() if self.focused_object else None,
             "sessions": [session.to_dict() for session in self.sessions],
-            "current_session_id": self.current_session_id,
-            "pending_turn": self.pending_turn.to_dict() if self.pending_turn else None
+            "current_session_id": self.current_session_id
         }
 
     @classmethod

@@ -50,8 +50,6 @@ async def async_main():
 
         await session.commit()
 
-    print(user.name)
-    await engine.dispose()
 
 
 if __name__ == '__main__':

@@ -45,7 +45,6 @@ class FocusedObject:
             attributes=data.get('attributes', {})
         )
 
-
 @dataclass(slots=True)
 class UserMessage:
     sender_id: str  # 用户ID(必填字段)
@@ -93,3 +92,10 @@ class BotMessage:
             text=data.get('text'),
             object=FocusedObject.from_dict(data['object']) if data.get('object') else None
         )
+
+@dataclass
+class ProcessResult:
+    sender_id: str                                 # 用户ID
+    message_id: str                                # 消息ID(内部生成)
+    messages: list[BotMessage]                     # 回复消息（机器人回复的所有消息都给前端）
+

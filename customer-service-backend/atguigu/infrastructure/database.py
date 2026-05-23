@@ -8,14 +8,14 @@ sqlalchemy:名字sql log 幂
 """
 import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, async_sessionmaker, AsyncSession
-from atuguigu.config.config import settings
+from atguigu.config.config import settings
 from sqlalchemy import text
 
 engine: AsyncEngine | None = None
 async_session: async_sessionmaker[AsyncSession]
 
 
-def init_db_engin():
+def init_db_engine():
     global engine, async_session
     # 1. 创建异步引擎
     engine = create_async_engine(
@@ -31,7 +31,7 @@ async def close_db_engine():
 
 
 async def main():
-    init_db_engin()
+    init_db_engine()
 
     async  with async_session() as session:
         result = await session.execute(text("select 1"))  # 测试是否通（core）

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     commerce_api_base_url: str
     database_url: str
     app_host: str
-    app_port: str
+    app_port: int
 
 
 # 实例化得到配置信息类

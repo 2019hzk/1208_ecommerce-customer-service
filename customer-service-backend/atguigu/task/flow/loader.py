@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from typing import List, Dict, Any
 import yaml
 
-from atuguigu.task.flow.flows import FlowsList, FlowSlot, Flow
-from atuguigu.task.flow.steps import FlowStep, CollectedFlowStep
+from atguigu.task.flow.flows import FlowsList, FlowSlot, Flow
+from atguigu.task.flow.steps import FlowStep, CollectedFlowStep
 
 YAML_PATH = Path(__file__).resolve().parents[3] / "flow_config" / "user_flows.yml"
 
@@ -27,7 +27,6 @@ class FlowLoader:
             single_flows_list = self.load(path)
             # 2. 获取单个yaml的flows
             flows.extend(single_flows_list.flows)
-
             duplicate_slot_name = set(slots).intersection(single_flows_list.slots)
             if duplicate_slot_name:  # 去重可选(建议做去重)
                 duplicates = ", ".join(sorted(duplicate_slot_name))
