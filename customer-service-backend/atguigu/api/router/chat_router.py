@@ -19,7 +19,7 @@ async def chat_endpoint(
     # 1. 处理输入接口模型
     user_message = _build_user_message(chat_request)
     # 2. 业务处理
-    process_result: ProcessResult = await service.hand_message(user_message)
+    process_result: ProcessResult = await service.handle_message(user_message)
 
     # 3. 处理输出接口模型
     return _build_chat_response(process_result)

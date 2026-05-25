@@ -209,11 +209,11 @@ class DialogueState:
         开启session
         :return:
         """
-        if self.current_session() is None:
-            now = time.time()
-            session = Session(session_id=str(uuid.uuid4()), started_at=now, last_activity_at=now)
-            self.sessions.append(session)
-            self.current_session_id = session.session_id
+
+        now = time.time()
+        session = Session(session_id=str(uuid.uuid4()), started_at=now, last_activity_at=now)
+        self.sessions.append(session)
+        self.current_session_id = session.session_id
 
     def close_session(self):
         if self.current_session() is not None:
@@ -232,7 +232,6 @@ class DialogueState:
         self.paused_tasks = []
         self.focused_object = None
         self.pending_turn = None
-        self.current_session_id = None
 
     # --------------turn相关的--------------------------
 
@@ -249,4 +248,3 @@ class DialogueState:
     # --------------FocusedObject相关的--------------------------
     def set_focused_object(self, focused_object: FocusedObject):
         self.focused_object = focused_object
-

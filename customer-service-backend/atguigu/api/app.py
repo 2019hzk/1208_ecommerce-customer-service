@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from atguigu.api.router.chat_router import router
 from atguigu.infrastructure.database import init_db_engine, close_db_engine
+from atguigu.api.dependencies import init_dialogue_engine
 
 
 @asynccontextmanager
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
     :return:
     """
     init_db_engine()
+    init_dialogue_engine()
     yield  # FASTAPI 处理请求....
     await close_db_engine()  # 应用关闭的时候才执行到
 

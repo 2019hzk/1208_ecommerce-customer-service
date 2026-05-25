@@ -1,0 +1,24 @@
+from pathlib import Path
+from atguigu.engine.dialogue_engine import DialogueEngine
+from atguigu.plan.planner import TurnPlanner
+from atguigu.knowledge.handler import KnowLedgeHandler
+from atguigu.chitchat.handler import ChitChatHandler
+from atguigu.task.handler import TaskHandler
+from atguigu.task.flow.loader import FlowLoader
+from atguigu.plan.turn_validator import TurnPlanValidator
+
+# 真正加载YAML
+PROJECT_DIR = Path(__file__).resolve().parents[2]
+FLOW_CONFIG_DIR = PROJECT_DIR / "flow_config"
+FLOW_CONFIG_FILES = ["system_flows.yml", "user_flows.yml"]
+
+
+def build_dialogue_engine():
+    flow_list = FlowLoader().load_many([FLOW_CONFIG_DIR / file_name for file_name in FLOW_CONFIG_FILES])
+    return DialogueEngine(
+        turn_planner=TurnPlanner(),
+        turn_validator=TurnPlanValidator(),
+        task_handler=TaskHandler(flows=flow_list),
+        knowledge_handler=KnowLedgeHandler(),
+        chit_chat_handler=ChitChatHandler()
+    )
