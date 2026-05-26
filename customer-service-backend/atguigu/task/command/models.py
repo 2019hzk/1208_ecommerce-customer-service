@@ -6,13 +6,12 @@ from typing import Any, Dict
 class Command:
     command: str
 
-
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Command":
-        clz = COMMAND_NAME_TO_CLASS[data["command"]]
-        return clz(**data)
-
-
+        clz = COMMAND_NAME_TO_CLASS.get(data["command"])
+        if clz is not None:
+            return clz(**data)
+        return Command(command="unknown")
 
 
 @dataclass
@@ -32,9 +31,7 @@ class CancelFlowCommand(Command):
 
 @dataclass
 class ResumeFlowCommand(Command):
-    flow: str | None = None   # 恢复指定的业务流程或者当前活跃的业务流程（LLM生成的，你给了interrupted_tasks_json）
-
-
+    flow: str | None = None  # 恢复指定的业务流程或者当前活跃的业务流程（LLM生成的，你给了interrupted_tasks_json）
 
 
 COMMAND_NAME_TO_CLASS = {
@@ -44,5 +41,8 @@ COMMAND_NAME_TO_CLASS = {
     "resume_flow": ResumeFlowCommand,
 }
 
+if __name__ == '__main__':
+    # c = CancelFlowCommand(command="xxxx")
+    c = Command(command="xxxx")
 
-
+    print(isinstance(c, StartFlowCommand))

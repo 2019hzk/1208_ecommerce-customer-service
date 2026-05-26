@@ -5,7 +5,7 @@ from dataclasses import dataclass, field, asdict
 @dataclass(slots=True)
 class TaskContext:
     """
-    业务任务的上下任务
+    业务任务的上下任务 各个业务任务的信息都会用TaskContext来保存
     """
     flow_id: str  # 业务流程的流程ID
     step_id: str | None = None  # 业务流程下步骤ID

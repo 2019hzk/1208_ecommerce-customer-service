@@ -9,6 +9,7 @@ from atguigu.plan.turn_plan import TurnPlan
 from atguigu.prompts.loader import load_prompt
 from atguigu.task.flow.flows import FlowsList
 from atguigu.prompts.history_builder import HistoryBuilder
+from atguigu.knowledge.intents import KnowledgeIntent
 
 
 class TurnPlanner:
@@ -17,7 +18,11 @@ class TurnPlanner:
     作用：根据任务自然语言 调用LLM 分析轨道类型
     """
 
-    async def predict(self, state: DialogueState, flows: FlowsList) -> TurnPlan:
+    async def predict(self,
+                      state: DialogueState,
+                      *,
+                      flows: FlowsList,
+                      intents: Dict[str, KnowledgeIntent]) -> TurnPlan:
         """
 
         :param state:
@@ -25,20 +30,23 @@ class TurnPlanner:
         """
 
         # 1. 构建提示词
-        inputs_prompt = self._build_inputs_prompt(state, flows)
+        inputs_prompt = self._build_inputs_prompt(state, flows, intents)
 
         # 2. 调用LLM模型
         turn_plan = await  self._predict_from_inputs_prompt(inputs_prompt)
 
         return turn_plan
 
-
-    def _build_inputs_prompt(self, state: DialogueState, flows_list: FlowsList) -> Dict[str, Any]:
+    def _build_inputs_prompt(self,
+                             state: DialogueState,
+                             flows_list: FlowsList,
+                             intents: Dict[str, KnowledgeIntent]) -> Dict[str, Any]:
         """
         :param state:
         :return: 字典
 
         """
+
         # 1. 用户消息
         user_msg = HistoryBuilder._render_user_message(state.pending_turn.user_message)
 
@@ -54,17 +62,20 @@ class TurnPlanner:
                                             ensure_ascii=False)
 
         # 5. 页面点击卡片获取的信息
-        focused_object_json = json.dumps(state.focused_object.to_dict()) if state.focused_object is not None else None
+        focused_object_json = json.dumps(state.focused_object.to_dict(),
+                                         ensure_ascii=False) if state.focused_object is not None else None
 
         # 6. 流程清单
-        # available_flows_json=[{} for flow in flows_list.flows]
-
         available_flows_json = json.dumps(
             {
                 "flows": [{k: v for k, v in asdict(flow).items() if k != "steps"} for flow in flows_list.flows]
             },
             ensure_ascii=False,
         ),
+
+        # 7. 知识意图清单
+        knowledge_intents_json = json.dumps(
+            [{"id": intent.id, "description": intent.description} for intent in intents.values()], ensure_ascii=False)
 
         return {
             "user_message": user_msg,
@@ -73,9 +84,8 @@ class TurnPlanner:
             "interrupted_tasks_json": interrupted_tasks_json,
             "focused_object_json": focused_object_json,
             "available_flows_json": available_flows_json,
-            "knowledge_intents_json": ""
+            "knowledge_intents_json": knowledge_intents_json
         }
-
 
     async def _predict_from_inputs_prompt(self, inputs_prompt: Dict[str, Any]) -> TurnPlan:
         """

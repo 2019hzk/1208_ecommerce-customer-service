@@ -6,6 +6,8 @@ from atguigu.chitchat.handler import ChitChatHandler
 from atguigu.task.handler import TaskHandler
 from atguigu.task.flow.loader import FlowLoader
 from atguigu.plan.turn_validator import TurnPlanValidator
+from atguigu.clarify.responder import ClarifyResponder
+from atguigu.knowledge.intents import KNOWLEDGE_INTENTS
 
 # 真正加载YAML
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -18,7 +20,8 @@ def build_dialogue_engine():
     return DialogueEngine(
         turn_planner=TurnPlanner(),
         turn_validator=TurnPlanValidator(),
+        clarify_responder=ClarifyResponder(),
         task_handler=TaskHandler(flows=flow_list),
-        knowledge_handler=KnowLedgeHandler(),
+        knowledge_handler=KnowLedgeHandler(knowledge_intents=KNOWLEDGE_INTENTS),
         chit_chat_handler=ChitChatHandler()
     )

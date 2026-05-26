@@ -41,7 +41,7 @@ class DialogueStateRepository:
         """
 
         # 1. 得到DialogueState的json字符串
-        state_json: str = json.dumps(dialogue_state.to_dict())
+        state_json: str = json.dumps(dialogue_state.to_dict(), ensure_ascii=False)
 
         # 2. 定义插入的sql语句
         insert_stmt = insert(DialogueStateRecord).values(
