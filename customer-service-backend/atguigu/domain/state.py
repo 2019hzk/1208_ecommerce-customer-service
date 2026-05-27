@@ -139,27 +139,33 @@ class DialogueState:
         self.paused_tasks.append(self.active_task)
         self.active_task = None
 
-    def resumed_active_task(self, flow_id: str | None):
+    def resumed_active_task(self, flow_id: str | None = None) -> bool:
         """
         恢复业务任务:流程ID
-        :return:
+        :return: 要不恢复成功 要不就是回复失败
         """
-        # 1. 恢复最近的任务
-        if not flow_id:
+
+        # 1. 判断栈中是否存在中断的业务任务
+        if not self.paused_tasks:
+            return False
+
+        # 2. 判断业务流程ID 是否存在
+        # 2.1 如果不存在(只能恢复栈顶的)
+        if flow_id is None:
             task = self.paused_tasks.pop()
             self.active_task = task
-            return
+            return True
+        # 2.2 如果存在
+        for i, paused_task in enumerate(self.paused_tasks):
+            if paused_task.flow_id == flow_id:
+                # a) 激活
+                self.active_task = paused_task
+                # b) 删除
+                del self.paused_tasks[i]
 
-        # 2. 精确恢复某一暂停的业务任务
-        for task in self.paused_tasks:
-            if task.flow_id == flow_id:
-                self.active_task = task
-                self.paused_tasks.remove(task)  # 当前恢复任务从栈中移除掉
-                return
+                return True
 
-        # 3. 兜底
-        task = self.paused_tasks.pop()
-        self.active_task = task
+        return False
 
     def cancel_active_task(self):
         self.active_task = None

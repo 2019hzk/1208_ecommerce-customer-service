@@ -68,6 +68,7 @@ class DialogueEngine:
             message_id=user_message.message_id,
             messages=msgs
         )
+
     def _prepare_session(self, state: DialogueState) -> None:
         """
 
@@ -125,7 +126,7 @@ class DialogueEngine:
         # 2.2 如果校验通过，执行对应某一条轨道进行对应的处理
 
         if turn_plan.task is not None:
-            return self.task_handler.handle()
+            return self.task_handler.handle(state, commands=turn_plan.task.commands)
         elif turn_plan.knowledge is not None:
             return self.knowledge_handler.handle()
         else:
