@@ -1,6 +1,7 @@
 from typing import List
 
-from atguigu.domain.contexts import TaskContext, StartedSystemContext, InterruptedSystemContext, ResumedSystemContext
+from atguigu.domain.contexts import TaskContext, StartedSystemContext, InterruptedSystemContext, ResumedSystemContext, \
+    CanceledSystemContext
 from atguigu.domain.state import DialogueState
 from atguigu.task.command.models import Command, StartFlowCommand, SetSlotsCommand, ResumeFlowCommand, CancelFlowCommand
 from atguigu.task.flow.flows import FlowsList
@@ -26,9 +27,9 @@ class CommandProcessor:
         elif isinstance(command, SetSlotsCommand):
             self._handle_set_slots(state, command)  # 最简单
         elif isinstance(command, ResumeFlowCommand):
-            self._handle_resume_flow()  # 其次复杂
+            self._handle_resume_flow(state, flow_list, command)  # 其次复杂
         elif isinstance(command, CancelFlowCommand):
-            self.handle_cancel_flow()  # 好好
+            self.handle_cancel_flow(state, flow_list)
         else:
             pass
 
@@ -51,8 +52,15 @@ class CommandProcessor:
         :param flow_list:
         :return:
         """
-
+        # 0.  系统流程情况
         state.end_active_system_task()
+        # 0.1 判断开启的流程是否是系统流程
+        if command.flow.startswith("system_"):
+            raise ValueError(f"不能开启系统流程流程ID: {command.flow}")
+        # 0.2 判断流程是否存在
+        flow = flow_list.get_flow_by_id(command.flow)
+        if flow is None:
+            raise ValueError(f"开启的流程ID: {command.flow} 对应的流程不存在")
 
         target_flow = flow_list.get_flow_by_id(command.flow)
 
@@ -175,3 +183,95 @@ class CommandProcessor:
             resumed_flow_id=resumed_flow_id,
             resumed_flow_name=resumed_flow_name
         ))
+
+    def _activate_cancel_system_flow(self,
+                                     state: DialogueState,
+                                     flow_list: FlowsList,
+                                     *,
+                                     cancel_flow_id: str,
+                                     cancel_flow_name: str):
+
+        flow = flow_list.get_flow_by_id("system_task_canceled")
+        state.start_active_system_task(CanceledSystemContext(
+            flow_id=flow.id,
+            step_id=flow.start_step().id,
+            canceled_flow_id=cancel_flow_id,
+            canceled_flow_name=cancel_flow_name
+        ))
+
+    def handle_cancel_flow(self,
+                           state: DialogueState,
+                           flow_list: FlowsList):
+
+        """
+        取消当前业务流程、进入取消系统流程
+        :param state:
+        :param flow_list:
+        :return:
+        """
+
+        # 1. 激活系统的取消流程
+        task = state.active_task
+        flow = flow_list.get_flow_by_id(task.flow_id)
+        self._activate_cancel_system_flow(state,
+                                          flow_list,
+                                          cancel_flow_id=flow.id,
+                                          cancel_flow_name=self._readable_flow_name(flow.id, flow_list)
+                                          )
+        state.end_active_task()
+
+    def _handle_resume_flow(self,
+                            state: DialogueState,
+                            flow_list: FlowsList,
+                            command: ResumeFlowCommand):
+
+        # ===== 第一步:确定要恢复哪个流程 =====
+        if command.flow is not None:
+            # 指名恢复:用户明确说了恢复哪个
+            target_flow = flow_list.get_flow_by_id(command.flow)
+            if target_flow is None:
+                raise ValueError(f"Unknown flow '{command.flow}'.")
+            target_flow_id = target_flow.id
+            target_flow_name = target_flow.name
+        else:
+            # 不指名恢复:用户只说"继续刚才的" → 取暂停栈栈顶(最近挂起的)
+            if not state.paused_tasks:
+                return
+            top_paused = state.paused_tasks[-1]
+            target_flow_id = top_paused.flow_id
+            target_flow_name = self._readable_flow_name(target_flow_id, flow_list)
+
+        # ===== 第二步:按"当前有没有活跃任务"恢复 =====
+        active_task = state.active_task
+
+        if active_task is not None:
+
+            # 判断恢复的任务流程ID是否等于当前正在执行的业务任务流程ID
+            if active_task.flow_id == target_flow_id:
+                return
+
+            state.interrupted_active_task()  # 将当前正在执行的业务任务流程压入栈
+            interrupted_flow_id = active_task.flow_id
+            interrupted_flow_name = self._readable_flow_name(active_task.flow_id, flow_list)
+
+            if not state.resumed_active_task(flow_id=target_flow_id):  # 恢复失败了
+                state.resumed_active_task()  # 撤销影响的那个当前正在执行的业务任务流程
+                return
+
+            self._activate_interrupted_system_task(
+                state, flow_list,
+                interrupted_flow_id=interrupted_flow_id,
+                interrupted_flow_name=interrupted_flow_name,
+                started_flow_id=target_flow_id,
+                started_flow_name=target_flow_name,
+            )
+        else:
+            if not state.resumed_active_task(command.flow):  # ④没任务,直接恢复
+                return
+
+            resumed = state.active_task  # 获取从栈中恢复的业务流程
+            self._activate_resumed_system_flow(
+                state, flow_list,
+                resumed_flow_id=resumed.flow_id,
+                resumed_flow_name=self._readable_flow_name(resumed.flow_id, flow_list),
+            )

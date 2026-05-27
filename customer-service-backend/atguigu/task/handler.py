@@ -15,7 +15,7 @@ class TaskHandler:
     def handle(self, state: DialogueState, *, commands: List[Command],
                ) -> list[BotMessage]:
         # 1. 利用CommandProcessor 处理对应的Command
-        self.processor.run(state, commands, self.flow)
+        self.processor.run(state, commands, self.flows)
 
         # 2. FlowExecutor.run_task():推进流程（TaskContext/SystemContext）交互(TODO)
 
