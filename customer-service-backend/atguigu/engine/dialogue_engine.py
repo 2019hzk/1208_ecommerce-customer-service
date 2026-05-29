@@ -19,9 +19,7 @@ from atguigu.task.flow.steps import CollectedFlowStep
 class DialogueEngine:
     """
     调度中心（只协调各个组件、身上的各个组件真正干活）
-
     """
-
     def __init__(self,
                  turn_planner: TurnPlanner,
                  turn_validator: TurnPlanValidator,
@@ -126,7 +124,7 @@ class DialogueEngine:
         # 2.2 如果校验通过，执行对应某一条轨道进行对应的处理
 
         if turn_plan.task is not None:
-            return self.task_handler.handle(state, commands=turn_plan.task.commands)
+            return await self.task_handler.handle(state, commands=turn_plan.task.commands)
         elif turn_plan.knowledge is not None:
             return self.knowledge_handler.handle()
         else:
@@ -137,10 +135,10 @@ class DialogueEngine:
                               flows: FlowsList) -> list[BotMessage]:
 
         # 1. 将对象解析成command(SetSlotsCommand)
-        command = self._resolve_object_command(user_message, state, flows)
+        commands = self._resolve_object_command(user_message, state, flows)
         # 2. 判断command是否有(流程的步骤刚好需要你点击的卡片) 退后续的流程即可（槽位填好了）
-        if command:
-            return self.task_handler.handle()
+        if commands:
+            return await self.task_handler.handle(state, commands=commands)
 
         # 3. 业务流程存在
         if state.active_task is not None:

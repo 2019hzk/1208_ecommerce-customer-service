@@ -19,6 +19,7 @@ class ActionResult:
     slot_updates: dict[str, Any] = field(default_factory=dict)       # 业务任务流程要的所有槽位信息（槽位信息来源两处：自己填（卡片）、llm填（文本）、三方返回的数据自己构建的）
 
 
+
 class Action(ABC):
     name: str  # action的名字
 

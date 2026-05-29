@@ -2,13 +2,20 @@ from typing import Any
 
 from atguigu.domain.state import DialogueState
 from atguigu.task.action.base import Action, ActionResult
+from atguigu.domain.messages import BotMessage
 
 
-class  LookUpOrderStatusAction(Action):
+class ActionResponse(Action):
+    name = "action_response"
+
     async def run(self, state: DialogueState, action_kwargs: dict[str, Any]) -> ActionResult:
         """
-        调用电商平台查询订单状态接口
+        响应内容
         :param state:
         :param action_kwargs:
         :return:
         """
+
+        text = action_kwargs.get('text')
+
+        return ActionResult(messages=[BotMessage(text=text)])

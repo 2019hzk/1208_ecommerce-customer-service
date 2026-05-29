@@ -16,8 +16,10 @@ async def chat_endpoint(
         chat_request: ChatRequest,
         service: DialogueService = Depends(get_dialogue_service)
 ) -> ChatResponse:
+
     # 1. 处理输入接口模型
     user_message = _build_user_message(chat_request)
+
     # 2. 业务处理
     process_result: ProcessResult = await service.handle_message(user_message)
 

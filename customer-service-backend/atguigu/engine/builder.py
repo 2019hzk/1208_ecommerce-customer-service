@@ -9,6 +9,8 @@ from atguigu.plan.turn_validator import TurnPlanValidator
 from atguigu.clarify.responder import ClarifyResponder
 from atguigu.knowledge.intents import KNOWLEDGE_INTENTS
 from atguigu.task.command.processor import CommandProcessor
+from atguigu.task.action.builder import build_action_runner
+from atguigu.task.flow.executor import FlowExecutor
 
 # 真正加载YAML
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -22,7 +24,11 @@ def build_dialogue_engine():
         turn_planner=TurnPlanner(),
         turn_validator=TurnPlanValidator(),
         clarify_responder=ClarifyResponder(),
-        task_handler=TaskHandler(flows=flow_list, processor=CommandProcessor()),
+        task_handler=TaskHandler(flows=flow_list,
+                                 processor=CommandProcessor(),
+                                 action_runner=build_action_runner(),
+                                 flow_executor=FlowExecutor()
+                                 ),
         knowledge_handler=KnowLedgeHandler(knowledge_intents=KNOWLEDGE_INTENTS),
         chit_chat_handler=ChitChatHandler()
     )
