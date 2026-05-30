@@ -1,5 +1,6 @@
 from pathlib import Path
 from atguigu.engine.dialogue_engine import DialogueEngine
+from atguigu.knowledge.responder import KnowledgeResponder
 from atguigu.plan.planner import TurnPlanner
 from atguigu.knowledge.handler import KnowLedgeHandler
 from atguigu.chitchat.handler import ChitChatHandler
@@ -11,6 +12,9 @@ from atguigu.knowledge.intents import KNOWLEDGE_INTENTS
 from atguigu.task.command.processor import CommandProcessor
 from atguigu.task.action.builder import build_action_runner
 from atguigu.task.flow.executor import FlowExecutor
+from atguigu.chitchat.responder import ChitChatResponder
+from atguigu.knowledge.registry import KnowledgeProviderRegistry
+from atguigu.knowledge.provider import ProductAPIProvider, OrderAPIProvider, FAQProvider, RAGProvider
 
 # 真正加载YAML
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -29,6 +33,16 @@ def build_dialogue_engine():
                                  action_runner=build_action_runner(),
                                  flow_executor=FlowExecutor()
                                  ),
-        knowledge_handler=KnowLedgeHandler(knowledge_intents=KNOWLEDGE_INTENTS),
-        chit_chat_handler=ChitChatHandler()
+        knowledge_handler=KnowLedgeHandler(knowledge_intents=KNOWLEDGE_INTENTS,
+                                           provider_registry=KnowledgeProviderRegistry(
+                                               providers=[
+                                                   ProductAPIProvider(),
+                                                   OrderAPIProvider(),
+                                                   FAQProvider(),
+                                                   RAGProvider()
+                                               ]
+                                           ),
+                                           knowledge_responder=KnowledgeResponder(),
+                                           ),
+        chit_chat_handler=ChitChatHandler(responder=ChitChatResponder())
     )

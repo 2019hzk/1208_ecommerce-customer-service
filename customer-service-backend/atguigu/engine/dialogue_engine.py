@@ -20,6 +20,7 @@ class DialogueEngine:
     """
     调度中心（只协调各个组件、身上的各个组件真正干活）
     """
+
     def __init__(self,
                  turn_planner: TurnPlanner,
                  turn_validator: TurnPlanValidator,
@@ -126,9 +127,9 @@ class DialogueEngine:
         if turn_plan.task is not None:
             return await self.task_handler.handle(state, commands=turn_plan.task.commands)
         elif turn_plan.knowledge is not None:
-            return self.knowledge_handler.handle()
+            return await self.knowledge_handler.handle(state, turn_plan.knowledge.intents)
         else:
-            return self.chit_chat_handler.handle()
+            return await self.chit_chat_handler.handle(state)
 
     async def _handle_obj_msg(self, user_message: UserMessage,
                               state: DialogueState,
@@ -142,7 +143,7 @@ class DialogueEngine:
 
         # 3. 业务流程存在
         if state.active_task is not None:
-            return self.task_handler.handle()
+            return await self.task_handler.handle(state, commands=[])
 
         # 4. 业务流程不存在
         return await self.clarify_responder.respond(state, reason=ClarifyReason.OBJECT_REQUIRES_INTENT)

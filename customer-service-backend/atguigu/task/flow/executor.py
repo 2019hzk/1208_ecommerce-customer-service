@@ -163,7 +163,7 @@ class FlowExecutor:
         action_kwargs = step.args
         # action_kwargs有可能有:结构有可能是一个str、dict{}  有可能没有:结构是个空字典{}
         if isinstance(action_kwargs, str):
-            # "context.response" :respone  {}
+            # "context.response" :response  {}
             action_kwargs = asdict(state.active_system_task)[action_kwargs.split(".")[1]]
         return ActionCall(action_name=action_name, action_kwargs=action_kwargs)
 

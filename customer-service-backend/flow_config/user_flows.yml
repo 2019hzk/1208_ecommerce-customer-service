@@ -57,7 +57,7 @@ flows:
 
       - id: end
         type: end
-        next: []
+        next: [ ]
 
   order_status_query:
     name: 订单状态查询
@@ -89,7 +89,7 @@ flows:
 
       - id: end
         type: end
-        next: []
+        next: [ ]
 
   logistics_tracking:
     name: 物流查询
@@ -120,7 +120,7 @@ flows:
 
       - id: end
         type: end
-        next: []
+        next: [ ]
 
   refund_request:
     name: 退款申请
@@ -154,7 +154,7 @@ flows:
 
       - id: end
         type: end
-        next: []
+        next: [ ]
 
   similar_product_recommendation:
     name: 相似商品推荐
@@ -165,23 +165,22 @@ flows:
         next:
           - if: "slots.get('product_id')"
             then: respond
-          - else: missing_product_context
+          - else: ask_product_id
 
-      - id: missing_product_context
-        type: action
-        action: action_response
-        args:
+      - id: ask_product_id
+        type: collect
+        slot_name: product_id
+        response:
           text: "请先选择一个商品，再继续咨询。"
-        next: end
+        next: respond
 
       - id: respond
         type: action
         action: action_recommend_similar_products
         next: end
-
       - id: end
         type: end
-        next: []
+        next: [ ]
 
   human_handoff:
     name: 人工客服
@@ -200,4 +199,4 @@ flows:
 
       - id: end
         type: end
-        next: []
+        next: [ ]

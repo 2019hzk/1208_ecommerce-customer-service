@@ -178,7 +178,8 @@ class DialogueState:
         :param slots:
         :return:
         """
-        self.active_task.slots.update(slots)
+        if self.active_task is not None:
+            self.active_task.slots.update(slots)
 
     def remove_slot(self, slot_name: str):
         """
