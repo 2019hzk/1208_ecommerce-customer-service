@@ -22,6 +22,15 @@ class Settings(BaseSettings):
     app_host: str
     app_port: int
 
+    # 万相数字人(灵眸) 云渲染. 说话由灵眸服务端 TTS 完成
+    avatar_access_key_id: str = ""
+    avatar_access_key_secret: str = ""
+    avatar_endpoint: str = "lingmou.cn-beijing.aliyuncs.com"
+    avatar_project_id: str = ""
+    avatar_license: str = ""
+    avatar_platform: str = "web"
+    avatar_instance_id: str = ""
+
 
 # 实例化得到配置信息类
 settings = Settings()

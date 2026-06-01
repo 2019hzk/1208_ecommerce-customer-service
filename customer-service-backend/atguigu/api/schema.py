@@ -30,3 +30,10 @@ class ChatResponse(BaseModel):
     sender_id: str
     message_id: str
     messages: list[ChatBotMessage]
+
+
+class AvatarSessionResponse(BaseModel):
+    """前端 lm-avatar-chat-sdk 初始化所需会话 JSON。"""
+    sessionId: str
+    rtcParams: dict = {}
+    avatarAssets: dict = {}
