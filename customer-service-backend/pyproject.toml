@@ -17,5 +17,6 @@ dependencies = [
     "uvicorn[standard]>=0.44.0",
     "alibabacloud-lingmou20250527>=1.0.0",
     "alibabacloud-tea-openapi>=0.3.12",
-    "alibabacloud-tea-util>=0.3.13"
+    "alibabacloud-tea-util>=0.3.13",
+    "dashscope"
 ]
