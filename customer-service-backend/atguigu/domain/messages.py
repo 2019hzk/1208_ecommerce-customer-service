@@ -9,7 +9,7 @@ from_dict:将字典对象转成实例对象
 
 """
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, Literal
 from dataclasses import field, dataclass
 
 
@@ -45,6 +45,7 @@ class FocusedObject:
             attributes=data.get('attributes', {})
         )
 
+
 @dataclass(slots=True)
 class UserMessage:
     sender_id: str  # 用户ID(必填字段)
@@ -76,8 +77,8 @@ class UserMessage:
 
 @dataclass(slots=True)
 class BotMessage:
-    text: str | None = None               # 主要回复消息的内容
-    object: FocusedObject | None = None   # 扩展字段
+    text: str | None = None  # 主要回复消息的内容
+    object: FocusedObject | None = None  # 扩展字段
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -93,9 +94,17 @@ class BotMessage:
             object=FocusedObject.from_dict(data['object']) if data.get('object') else None
         )
 
+
 @dataclass
 class ProcessResult:
-    sender_id: str                                 # 用户ID
-    message_id: str                                # 消息ID(内部生成)
-    messages: list[BotMessage]                     # 回复消息（机器人回复的所有消息都给前端）
+    sender_id: str  # 用户ID
+    message_id: str  # 消息ID(内部生成)
+    messages: list[BotMessage]  # 回复消息（机器人回复的所有消息都给前端）
 
+
+@dataclass(slots=True)
+class ChatHistoryMessage:
+    session_id: str
+    role: Literal["user", "bot"]
+    text: str | None = None
+    object: FocusedObject | None = None

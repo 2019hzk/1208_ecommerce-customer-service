@@ -1,9 +1,10 @@
 import uuid
 from fastapi import APIRouter, Depends
 from atguigu.api.schema import ChatResponse, ChatRequest, ChatBotMessage, ChatObject
-from atguigu.domain.messages import UserMessage, MessageType, FocusedObject, ProcessResult
+from atguigu.domain.messages import UserMessage, MessageType, FocusedObject, ProcessResult, ChatHistoryMessage
 from atguigu.api.dependencies import get_dialogue_service
 from atguigu.service.dialogue_service import DialogueService
+from atguigu.api.schema import ChatMessageResponse
 
 router = APIRouter()
 
@@ -16,7 +17,6 @@ async def chat_endpoint(
         chat_request: ChatRequest,
         service: DialogueService = Depends(get_dialogue_service)
 ) -> ChatResponse:
-
     # 1. 处理输入接口模型
     user_message = _build_user_message(chat_request)
 
@@ -25,6 +25,15 @@ async def chat_endpoint(
 
     # 3. 处理输出接口模型
     return _build_chat_response(process_result)
+
+
+@router.get("/api/chat/history", response_model=ChatMessageResponse)
+async def chat_history_endpoint(sender_id: str,
+                                service: DialogueService = Depends(get_dialogue_service)
+                                ) -> ChatMessageResponse:
+    chat_history = await service.load_chat_history(sender_id)
+
+    return ChatMessageResponse(sender_id=sender_id, messages=chat_history)
 
 
 def _build_user_message(chat_request: ChatRequest) -> UserMessage:

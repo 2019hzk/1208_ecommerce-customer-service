@@ -22,6 +22,8 @@ const isSending = ref(false)
 const errorMessage = ref('')
 const messages = ref([])
 const messagesContainer = ref(null)
+const loadedHistoryCount = ref(0)
+const currentPageDividerInserted = ref(false)
 
 const orders = ref([])
 const products = ref([])
@@ -372,7 +374,17 @@ function createBaseMessage(role) {
   }
 }
 
+function insertCurrentPageDividerIfNeeded() {
+  if (currentPageDividerInserted.value || loadedHistoryCount.value === 0) {
+    return
+  }
+
+  appendMessage('divider', { text: '以上为历史消息' })
+  currentPageDividerInserted.value = true
+}
+
 function appendUserText(text) {
+  insertCurrentPageDividerIfNeeded()
   messages.value.push({
     ...createBaseMessage('user'),
     type: 'text',
@@ -381,6 +393,7 @@ function appendUserText(text) {
 }
 
 function appendUserObject(objectType, payload) {
+  insertCurrentPageDividerIfNeeded()
   messages.value.push({
     ...createBaseMessage('user'),
     type: 'object',
@@ -424,10 +437,15 @@ function appendMessage(role, message) {
 
 function setHistoryMessages(historyMessages) {
   messages.value = []
+  currentPageDividerInserted.value = false
   for (const message of historyMessages) {
-    const role = ['user', 'bot', 'divider'].includes(message.role) ? message.role : 'bot'
+    if (message.role === 'divider') {
+      continue
+    }
+    const role = ['user', 'bot'].includes(message.role) ? message.role : 'bot'
     appendMessage(role, message)
   }
+  loadedHistoryCount.value = messages.value.length
 }
 
 async function scrollToBottom() {
@@ -448,6 +466,8 @@ watch(
 
 function resetConversation() {
   messages.value = []
+  loadedHistoryCount.value = 0
+  currentPageDividerInserted.value = false
   errorMessage.value = ''
 }
 

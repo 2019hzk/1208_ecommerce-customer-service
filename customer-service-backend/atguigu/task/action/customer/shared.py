@@ -52,6 +52,7 @@ def _build_order_summary(payload: dict[str, Any]) -> str:
 
 
 async def main() -> dict[str, Any]:
+
     result = await fetch_order("B20260409001")
     print(result)
     return result

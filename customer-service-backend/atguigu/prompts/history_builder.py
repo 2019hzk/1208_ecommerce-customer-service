@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
-from atguigu.domain.state import Turn
-from atguigu.domain.messages import UserMessage, BotMessage, FocusedObject, MessageType
+from atguigu.domain.state import Turn, Session
+from atguigu.domain.messages import UserMessage, BotMessage, FocusedObject, MessageType, ChatHistoryMessage
 
 
 class HistoryBuilder:
@@ -73,5 +73,22 @@ class HistoryBuilder:
         else:
             return HistoryBuilder._render_obj_msg(bot_msg.object)  # 基本走不到
 
+    @staticmethod
+    def render_chat_history_user_message(user_message: UserMessage, session: Session):
 
+        return ChatHistoryMessage(
+            session_id=session.session_id,
+            role="user",
+            text=user_message.text,
+            object=user_message.object
+        )
 
+    @staticmethod
+    def render_chat_history_bot_message(bot_message: BotMessage, session: Session):
+
+        return ChatHistoryMessage(
+            session_id=session.session_id,
+            role="bot",
+            text=bot_message.text,
+            object=bot_message.object
+        )

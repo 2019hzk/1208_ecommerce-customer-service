@@ -5,6 +5,7 @@
 响应相关：
 """
 from pydantic import BaseModel
+from atguigu.domain.messages import ChatHistoryMessage
 
 
 class ChatObject(BaseModel):
@@ -37,3 +38,8 @@ class AvatarSessionResponse(BaseModel):
     sessionId: str
     rtcParams: dict = {}
     avatarAssets: dict = {}
+
+
+class ChatMessageResponse(BaseModel):
+    sender_id: str
+    messages: list[ChatHistoryMessage]
